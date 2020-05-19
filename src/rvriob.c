@@ -71,7 +71,7 @@ set_blocking (int fd, int should_block)
 /***********************************************************************************/
 
 void init_port() {
-    
+
     char *portname = "/dev/ttyS0";
     serial_port_fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
     if (serial_port_fd < 0) {
@@ -80,31 +80,31 @@ void init_port() {
     }
 
     set_interface_attribs (serial_port_fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-    set_blocking (serial_port_fd, 0); 
+    set_blocking (serial_port_fd, 0);
 
     sequence_number = 1;
     logging_level = 0;
-}       
+}
 
 void set_logging_level(int level) {
     logging_level = level;
 }
 
 void log_flags(struct header * headr) {
-    printf("%1d.......: %s\n", headr->flags.flag_bits.is_response, 
+    printf("%1d.......: %s\n", headr->flags.flag_bits.is_response,
                                (headr->flags.flag_bits.is_response==0?"no response":"is a response"));
-    printf(".%1d......: %s\n", headr->flags.flag_bits.response_requested, 
+    printf(".%1d......: %s\n", headr->flags.flag_bits.response_requested,
                                (headr->flags.flag_bits.response_requested==0?"no response requested":"response requested"));
-    printf("..%1d.....: %s\n", headr->flags.flag_bits.response_requested_if_error, 
+    printf("..%1d.....: %s\n", headr->flags.flag_bits.response_requested_if_error,
                                (headr->flags.flag_bits.response_requested_if_error==0?"no error response requested":"error response requested"));
     printf("...%1d....: %s\n", headr->flags.flag_bits.is_activity,
                                (headr->flags.flag_bits.is_activity==0?"is not an activity":"is an activity"));
-    printf("....%1d...: %s\n", headr->flags.flag_bits.has_target, 
+    printf("....%1d...: %s\n", headr->flags.flag_bits.has_target,
                                (headr->flags.flag_bits.has_target==0?"no target":"has target"));
-    printf(".....%1d..: %s\n", headr->flags.flag_bits.has_source, 
+    printf(".....%1d..: %s\n", headr->flags.flag_bits.has_source,
                                (headr->flags.flag_bits.has_source==0?"no source":"has source"));
     printf("......0.: %s\n", "UNUSED");
-    printf(".......%1d: %s\n", headr->flags.flag_bits.has_more_flags, 
+    printf(".......%1d: %s\n", headr->flags.flag_bits.has_more_flags,
                                (headr->flags.flag_bits.has_more_flags==0?"no more flags":"has more flags"));
 }
 
@@ -159,8 +159,8 @@ struct message * read_message(int recv_length) {
     u_int8_t bite;
     int checksum = 0;
 
-    struct message * msg = (struct message*) malloc(sizeof(struct message));
-    struct header * headr = (struct header *) malloc(sizeof (struct header));
+    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
+    struct header headr; // * headr = (struct header *) malloc(sizeof (struct header));
     msg->msghdr = headr;
 
     /* Start the message */
@@ -173,7 +173,7 @@ struct message * read_message(int recv_length) {
 
     /* Flags */
     bite = readbyte();
-    msg->msghdr->flags.allbits = bite; 
+    msg->msghdr->flags.allbits = bite;
     checksum += bite;
 
     /* Rest of the header */
@@ -193,7 +193,7 @@ struct message * read_message(int recv_length) {
     bite = readbyte();
     msg->msghdr->deviceID = bite;
     checksum += bite;
- 
+
     bite = readbyte();
     msg->msghdr->commandID = bite;
     checksum += bite;
@@ -210,15 +210,15 @@ struct message * read_message(int recv_length) {
     /* And now the payload */
     if (recv_length == 0) recv_length = 16;
     if (recv_length > 0) {
-        u_int8_t * pl;
-        pl = (u_int8_t *) malloc(sizeof(u_int8_t)*recv_length);
+      u_int8_t pl[recv_length]; // * pl;
+        // pl = (u_int8_t *) malloc(sizeof(u_int8_t)*recv_length);
         msg->payload = pl;
         if (logging_level >= BYTESINFO) printf("{");
         for (int i=0; i < recv_length; i++) {
             bite = readbyte();
             *pl = bite;
             checksum += bite;
-    
+
             pl++;
         }
         msg->loadlength = recv_length;
@@ -230,11 +230,11 @@ struct message * read_message(int recv_length) {
     bite = readbyte();
     if (bite != checksum) {
     }
-    
+
     /* Message ends */
     bite = readbyte();
     while (bite != MESSAGE_END) {
-       if (logging_level >= BYTESINFO) printf("* ", bite);   
+       if (logging_level >= BYTESINFO) printf("* ", bite);
        bite = readbyte();
     }
     if (logging_level >= BYTESINFO) printf("]\n");
@@ -251,8 +251,8 @@ struct message * read_message2() {
     int checksum = 0;
     u_int8_t buffer[256];
 
-    struct message * msg = (struct message*) malloc(sizeof(struct message));
-    struct header * headr = (struct header *) malloc(sizeof (struct header));
+    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
+    struct header headr; // * headr = (struct header *) malloc(sizeof (struct header));
     msg->msghdr = headr;
 
     /* Start the message */
@@ -284,7 +284,7 @@ struct message * read_message2() {
     bite = readbyte();
     msg->msghdr->deviceID = bite;
     checksum += bite;
- 
+
     bite = readbyte();
     msg->msghdr->commandID = bite;
     checksum += bite;
@@ -311,16 +311,16 @@ struct message * read_message2() {
     if (logging_level >= BYTESINFO) printf("}");
     recv_length--;   // account for the received checksum
     msg->loadlength = recv_length;
-    u_int8_t * pl = (u_int8_t *) malloc(sizeof(u_int8_t)*recv_length);
+    u_int8_t pl[recv_length]; // * pl = (u_int8_t *) malloc(sizeof(u_int8_t)*recv_length);
     msg->payload = pl;
     for (int i=0; i<recv_length; i++) *(pl++) = buffer[i];
     if (logging_level >= BYTESINFO) printf("]\n");
-    
+
     /* Checksum */
     checksum = checksum & 0xFF ^ 0xFF;
     if (bite != checksum) {
     }
-    
+
     /******* Get verbose for logging *********/
     if (logging_level >= VERBOSE) log_packet(msg);
 
@@ -362,7 +362,7 @@ void write_message(struct message * msg) {
     writebyte(bite);
     checksum += bite;
     if (logging_level >= BYTESINFO) printf("%02x ", bite);
- 
+
     bite = msg->msghdr->commandID;
     writebyte(bite);
     checksum += bite;
@@ -391,7 +391,7 @@ void write_message(struct message * msg) {
     bite = checksum & 0xFF ^ 0xFF;
     writebyte(bite);
     if (logging_level >= BYTESINFO) printf("%02x ", bite);
-    
+
     /* Message ends */
     bite = MESSAGE_END;
     writebyte(bite);
@@ -400,19 +400,19 @@ void write_message(struct message * msg) {
     if (logging_level >= VERBOSE) log_packet(msg);
 }
 
-void messageSend(u_int8_t cid, u_int8_t did, 
-                 u_int8_t source, u_int8_t target, 
+void messageSend(u_int8_t cid, u_int8_t did,
+                 u_int8_t source, u_int8_t target,
                  u_int8_t * payload, u_int8_t payload_length) {
 
     /* Build the header */
-    struct header * headr = (struct header *) malloc(sizeof (struct header));
+  struct header header; // * headr = (struct header *) malloc(sizeof (struct header));
 
     /* Flags */
     headr->flags.allbits = 0;
     headr->flags.flag_bits.is_activity = 1;
     headr->flags.flag_bits.has_target = (target > 0 ? 1 : 0);
     headr->flags.flag_bits.has_source = (source > 0 ? 1 : 0);
-    
+
     /* Rest of the header */
     headr->targetID.wholeID = target;
     headr->sourceID.wholeID = source;
@@ -421,7 +421,7 @@ void messageSend(u_int8_t cid, u_int8_t did,
     headr->sequence_num = sequence_number++;
 
     /* Build the message */
-    struct message * msg = (struct message*) malloc(sizeof(struct message));
+    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
 
     msg->msghdr = headr;
     msg->payload = payload;
@@ -431,12 +431,12 @@ void messageSend(u_int8_t cid, u_int8_t did,
     write_message(msg);
 }
 
-u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did, 
-                              u_int8_t source, u_int8_t target, 
+u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
+                              u_int8_t source, u_int8_t target,
                               u_int8_t * payload, u_int8_t payload_length, u_int8_t recv_length) {
 
      /* Build the header */
-    struct header * headr = (struct header *) malloc(sizeof (struct header));
+  struct header headr; // * headr = (struct header *) malloc(sizeof (struct header));
 
     /* Flags */
     headr->flags.allbits = 0;
@@ -444,7 +444,7 @@ u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
     headr->flags.flag_bits.response_requested = 1;
     headr->flags.flag_bits.has_target = (target > 0 ? 1 : 0);
     headr->flags.flag_bits.has_source = (source > 0 ? 1 : 0);
-    
+
     /* Rest of the header */
     headr->targetID.wholeID = target;
     headr->sourceID.wholeID = source;
@@ -453,7 +453,7 @@ u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
     headr->sequence_num = sequence_number++;
 
     /* Build the message */
-    struct message * msg = (struct message*) malloc(sizeof(struct message));
+    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
 
     msg->msghdr = headr;
     msg->payload = payload;
@@ -477,4 +477,3 @@ u_int8_t * messageRecv() {
     struct message * response = read_message2();
     return response->payload;
 }
-

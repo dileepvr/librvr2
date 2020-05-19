@@ -91,7 +91,7 @@ void *read_thread() {
     u_int8_t *sensor_data, *temperature_data;
 
     reading = 1;
-    while (TRUE) { 
+    while (TRUE) {
         msg = read_message(serial_port_fd);
 
         if (msg->msghdr->deviceID == SENSOR_DEVICE_ID) {
@@ -128,7 +128,7 @@ void *read_thread() {
 /***********************************************************************************/
 
 void init_port() {
-    
+
     char *portname = "/dev/ttyS0";
     serial_port_fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
     if (serial_port_fd < 0) {
@@ -137,7 +137,7 @@ void init_port() {
     }
 
     set_interface_attribs (serial_port_fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-    set_blocking (serial_port_fd, 0); 
+    set_blocking (serial_port_fd, 0);
 
     int err = pipe(data_pipe);
     pthread_create(&input_thread, NULL, read_thread, NULL);
@@ -145,7 +145,7 @@ void init_port() {
     sequence_number = 1;
     logging_level = NOLOGGING;
     port_configured = 1;
-}       
+}
 
 void close_port() {
     reading = 0;
@@ -158,20 +158,20 @@ void set_logging_level(int level) {
 }
 
 void log_flags(struct header * headr) {
-    printf("%1d.......: %s\n", headr->flags.flag_bits.is_response, 
+    printf("%1d.......: %s\n", headr->flags.flag_bits.is_response,
                                (headr->flags.flag_bits.is_response==0?"no response":"is a response"));
-    printf(".%1d......: %s\n", headr->flags.flag_bits.response_requested, 
+    printf(".%1d......: %s\n", headr->flags.flag_bits.response_requested,
                                (headr->flags.flag_bits.response_requested==0?"no response requested":"response requested"));
-    printf("..%1d.....: %s\n", headr->flags.flag_bits.response_requested_if_error, 
+    printf("..%1d.....: %s\n", headr->flags.flag_bits.response_requested_if_error,
                                (headr->flags.flag_bits.response_requested_if_error==0?"no error response requested":"error response requested"));
     printf("...%1d....: %s\n", headr->flags.flag_bits.is_activity,
                                (headr->flags.flag_bits.is_activity==0?"is not an activity":"is an activity"));
-    printf("....%1d...: %s\n", headr->flags.flag_bits.has_target, 
+    printf("....%1d...: %s\n", headr->flags.flag_bits.has_target,
                                (headr->flags.flag_bits.has_target==0?"no target":"has target"));
-    printf(".....%1d..: %s\n", headr->flags.flag_bits.has_source, 
+    printf(".....%1d..: %s\n", headr->flags.flag_bits.has_source,
                                (headr->flags.flag_bits.has_source==0?"no source":"has source"));
     printf("......0.: %s\n", "UNUSED");
-    printf(".......%1d: %s\n", headr->flags.flag_bits.has_more_flags, 
+    printf(".......%1d: %s\n", headr->flags.flag_bits.has_more_flags,
                                (headr->flags.flag_bits.has_more_flags==0?"no more flags":"has more flags"));
 }
 
@@ -182,7 +182,7 @@ void log_packet(struct message * msg) {
     printf("Target: %02x, Source: %02x\n", msg->msghdr->targetID, msg->msghdr->sourceID);
     printf("Command ID: %02x, Device ID: %02x\n", msg->msghdr->commandID, msg->msghdr->deviceID);
     printf("Sequence #: %02x\n", msg->msghdr->sequence_num);
-    if (msg->msghdr->flags.flag_bits.is_response == 1) 
+    if (msg->msghdr->flags.flag_bits.is_response == 1)
         printf("Error code: %d (%s)\n", msg->msghdr->error_code, errmsg(msg->msghdr->error_code));
     printf("Payload: {");
     u_int8_t * pl = msg->payload;
@@ -197,7 +197,7 @@ void log_packet(struct message * msg) {
 int data_waiting(int fd) {
     int count;
     ioctl(fd, FIONREAD, &count);
-    if (logging_level >= VERBOSE) 
+    if (logging_level >= VERBOSE)
         printf("*** Bytes waiting = %d\n", count);
     return count;
 }
@@ -211,7 +211,7 @@ u_int8_t readbyte(int fd, int log) {
         if (log && logging_level >= VERBOSE) printf("*** NO DATA ***\n");
         return -1;
     }
-    if (log && logging_level >= BYTESINFO) 
+    if (log && logging_level >= BYTESINFO)
         if (fd == serial_port_fd) {
             printf("s%02x ", bite);
         } else {
@@ -240,12 +240,12 @@ void writebyte(int fd, u_int8_t bite) {
         bite = ESC_EOP;
     }
     write(fd, &bite, 1);
-    if (logging_level >= BYTESINFO) 
+    if (logging_level >= BYTESINFO)
         if (fd == serial_port_fd) {
             printf("S%02x ", bite);
         } else {
             printf("P%02x ", bite);
-        } 
+        }
 }
 
 struct message * read_message(int fd) {
@@ -254,13 +254,13 @@ struct message * read_message(int fd) {
     int checksum = 0;
     u_int8_t buffer[256];
 
-    struct message * msg = (struct message*) malloc(sizeof(struct message));
-    struct header * headr = (struct header *) malloc(sizeof (struct header));
+    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
+    struct header headr; // * headr = (struct header *) malloc(sizeof (struct header));
     msg->msghdr = headr;
 
     /* Start the message */
     if (logging_level >= BYTESINFO) {
-        if (fd == serial_port_fd) 
+        if (fd == serial_port_fd)
             printf("READ SERIAL: [");
         else
             printf("READ PIPE: [");
@@ -293,7 +293,7 @@ struct message * read_message(int fd) {
     bite = readbyte(fd,TRUE);
     msg->msghdr->deviceID = bite;
     checksum += bite;
- 
+
     bite = readbyte(fd,TRUE);
     msg->msghdr->commandID = bite;
     checksum += bite;
@@ -322,39 +322,39 @@ struct message * read_message(int fd) {
     }
     recv_length--;   // account for the received checksum
     msg->loadlength = recv_length;
-    u_int8_t * pl = (u_int8_t *) malloc(sizeof(u_int8_t)*recv_length);
+    u_int8_t pl[recv_length]; // * pl = (u_int8_t *) malloc(sizeof(u_int8_t)*recv_length);
     msg->payload = pl;
     for (int i=0; i<recv_length; i++) {
         *(pl++) = buffer[i];
-        if (logging_level >= BYTESINFO) 
+        if (logging_level >= BYTESINFO)
             if (fd == serial_port_fd) {
                 printf("s%02x ", buffer[i]);
             } else {
                 printf("p%02x ", buffer[i]);
             }
     }
-    if (logging_level >= BYTESINFO) 
+    if (logging_level >= BYTESINFO)
         if (fd == serial_port_fd) {
             printf("} s%02x s%02x]\n", buffer[recv_length], bite);
         } else {
             printf("} p%02x p%02x]\n", buffer[recv_length], bite);
         }
-    
+
     /* Checksum */
     checksum = checksum & 0xFF ^ 0xFF;
     if (bite != checksum) {
     }
-    
+
     /******* Get verbose for logging *********/
     if (logging_level >= VERBOSE) log_packet(msg);
 
     // if ((msg->msghdr->deviceID == SENSOR_DEVICE_ID) &&
-    //    (msg->msghdr->commandID == GYRO_MAX_NOTIFY || 
+    //    (msg->msghdr->commandID == GYRO_MAX_NOTIFY ||
     //     msg->msghdr->commandID == ROBOT_TO_ROBOT_INFRARED_MESSAGE_RECEIVED_NOTIFY ||
     //     msg->msghdr->commandID == COLOR_DETECTION_NOTIFY ||
     //     msg->msghdr->commandID == STREAMING_SERVICE_DATA_NOTIFY ||
     //     msg->msghdr->commandID == MOTOR_THERMAL_PROTECTION_STATUS_NOTIFY)) {
-        
+
     //     // process the data from the notify
     //     u_int8_t * color_data, *sensor_data, *temperature_data;
     //     if (msg->msghdr->commandID == GYRO_MAX_NOTIFY) {
@@ -379,7 +379,7 @@ struct message * read_message(int fd) {
         return msg;
 }
 
-void write_message(int fd, struct message * msg) { 
+void write_message(int fd, struct message * msg) {
 
     u_int8_t bite;
     int checksum = 0;
@@ -388,7 +388,7 @@ void write_message(int fd, struct message * msg) {
     bite = MESSAGE_START;
     write(fd, &bite, 1);
     if (logging_level >= BYTESINFO) {
-        if (fd == serial_port_fd) 
+        if (fd == serial_port_fd)
             printf("WRITE SERIAL: [S%02x ", bite);
         else
             printf("WRITE PIPE: [P%02x ", bite);
@@ -415,7 +415,7 @@ void write_message(int fd, struct message * msg) {
     bite = msg->msghdr->deviceID;
     writebyte(fd,bite);
     checksum += bite;
- 
+
     bite = msg->msghdr->commandID;
     writebyte(fd,bite);
     checksum += bite;
@@ -446,11 +446,11 @@ void write_message(int fd, struct message * msg) {
     /* Checksum */
     bite = checksum & 0xFF ^ 0xFF;
     writebyte(fd,bite);
-    
+
     /* Message ends */
     bite = MESSAGE_END;
     write(fd, &bite, 1);
-    if (logging_level >= BYTESINFO) 
+    if (logging_level >= BYTESINFO)
         if (fd == serial_port_fd) {
             printf("S%02x]\n", bite);
         } else {
@@ -460,25 +460,25 @@ void write_message(int fd, struct message * msg) {
     if (logging_level >= VERBOSE) log_packet(msg);
 }
 
-void messageSend(u_int8_t cid, u_int8_t did, 
-                 u_int8_t source, u_int8_t target, 
+void messageSend(u_int8_t cid, u_int8_t did,
+                 u_int8_t source, u_int8_t target,
                  u_int8_t * payload, u_int8_t payload_length) {
 
-    
+
     if (! port_configured) {
         printf("*** ERROR: serial port not configured.  Did you call init_port()?\n");
         return;
     }
 
     /* Build the header */
-    struct header * headr = (struct header *) malloc(sizeof (struct header));
+    struct header headr; // * headr = (struct header *) malloc(sizeof (struct header));
 
     /* Flags */
     headr->flags.allbits = 0;
     headr->flags.flag_bits.is_activity = 1;
     headr->flags.flag_bits.has_target = (target > 0 ? 1 : 0);
     headr->flags.flag_bits.has_source = (source > 0 ? 1 : 0);
-    
+
     /* Rest of the header */
     headr->targetID.wholeID = target;
     headr->sourceID.wholeID = source;
@@ -487,7 +487,7 @@ void messageSend(u_int8_t cid, u_int8_t did,
     headr->sequence_num = sequence_number++;
 
     /* Build the message */
-    struct message * msg = (struct message*) malloc(sizeof(struct message));
+    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
 
     msg->msghdr = headr;
     msg->payload = payload;
@@ -497,8 +497,8 @@ void messageSend(u_int8_t cid, u_int8_t did,
     write_message(serial_port_fd, msg);
 }
 
-u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did, 
-                              u_int8_t source, u_int8_t target, 
+u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
+                              u_int8_t source, u_int8_t target,
                               u_int8_t * payload, u_int8_t payload_length, u_int8_t recv_length) {
 
 
@@ -508,7 +508,7 @@ u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
     }
 
      /* Build the header */
-    struct header * headr = (struct header *) malloc(sizeof (struct header));
+    struct header headr; // * headr = (struct header *) malloc(sizeof (struct header));
 
     /* Flags */
     headr->flags.allbits = 0;
@@ -516,7 +516,7 @@ u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
     headr->flags.flag_bits.response_requested = 1;
     headr->flags.flag_bits.has_target = (target > 0 ? 1 : 0);
     headr->flags.flag_bits.has_source = (source > 0 ? 1 : 0);
-    
+
     /* Rest of the header */
     headr->targetID.wholeID = target;
     headr->sourceID.wholeID = source;
@@ -525,7 +525,7 @@ u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
     headr->sequence_num = sequence_number++;
 
     /* Build the message */
-    struct message * msg = (struct message*) malloc(sizeof(struct message));
+    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
 
     msg->msghdr = headr;
     msg->payload = payload;
@@ -548,7 +548,7 @@ u_int8_t * messageRecv() {
         printf("*** ERROR: serial port not configured.  Did you call init_port()?\n");
         return NULL;
     }
-    
+
     struct message * response = read_message(data_pipe[READ]);
     //struct message * response = read_message(serial_port_fd);
     return response->payload;

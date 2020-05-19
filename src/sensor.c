@@ -26,11 +26,11 @@ float get_ambient_light_sensor_value() {
      union {
         u_int32_t intvalue;
         float floatvalue;
-    } cvfloat; 
- 
-    char * reallyafloat = 
+    } cvfloat;
+
+    char * reallyafloat =
         messageSendAndRecv(GET_AMBIENT_LIGHT_SENSOR_VALUE, SENSOR_DEVICE_ID,
-                              NO_SOURCE, TARGET_ID_NORDIC, 
+                              NO_SOURCE, TARGET_ID_NORDIC,
                               NULL, 0, 4);
 
     u_int32_t integer = reallyafloat[0] << 24 | reallyafloat[1] << 16 | reallyafloat[2] << 8 | reallyafloat[3];
@@ -43,7 +43,7 @@ void reset_sensor_list() {
     sensor_count = 0;
 }
 
-void add_sensor(u_int16_t sensor) { 
+void add_sensor(u_int16_t sensor) {
     sensor_list[sensor_count++] = sensor;
 }
 
@@ -52,7 +52,7 @@ void configure_streaming_service() {
 
     u_int16_t sensor;
     u_int8_t * place;
-    u_int8_t * sensor_data = (u_int8_t *) malloc(sizeof(u_int8_t)*3*sensor_count + 1);
+    u_int8_t sensor_data[3*sensor_count + 1]; // * sensor_data = (u_int8_t *) malloc(sizeof(u_int8_t)*3*sensor_count + 1);
 
     int count;
     for (int p=1; p<=2; p++) {   // processor
@@ -66,7 +66,7 @@ void configure_streaming_service() {
                 if ((sensor & 0xF000) >> 12 != p) continue;
                 if ((sensor & 0x0F00) >> 8 != t) continue;
                 // processor is right; token is right!
-                if (logging_level >= VERBOSE) printf("*** Got sensor %04x, processor = %01x, token = %01x\n", 
+                if (logging_level >= VERBOSE) printf("*** Got sensor %04x, processor = %01x, token = %01x\n",
                                                     sensor, (sensor & 0xF000) >> 12, (sensor & 0x0F00) >> 8);
                 place[0] = 0x00;
                 place[1] = sensor & 0x000F;
@@ -88,7 +88,7 @@ int keep_reading;
 #define TRUE  1
 
 double normalize(unsigned int value, long in_min, unsigned long in_max, long out_min, unsigned long out_max) {
-    if (logging_level == VERYVERBOSE) 
+    if (logging_level == VERYVERBOSE)
         printf("Value = %d, in_min = %d, in_max = %d, out_min = %d, out_max = %d\n", value, in_min, in_max, out_min, out_max);
     double r1 = value - in_min;
     double r2 = in_max - in_min;
@@ -105,11 +105,11 @@ void set_sensor_data(u_int8_t *data) {
     union {
         u_int32_t intvalue;
         float floatvalue;
-    } cvfloat; 
+    } cvfloat;
     //u_int8_t * data;
     u_int32_t integer;
     float normalized;
-    
+
     //keep_reading = TRUE;
     //printf("Sensor thread starting\n");
     //while (keep_reading) {
@@ -227,7 +227,7 @@ float get_speed() {return speed;}
 float get_light() {return light;}
 
 void start_streaming_service(u_int16_t period) {
-    u_int8_t * data = (u_int8_t *) malloc(sizeof(u_int8_t)*2);
+  u_int8_t data[2]; // * data = (u_int8_t *) malloc(sizeof(u_int8_t)*2);
     data[0] = (period & 0xFF00) >> 8;
     data[1] = (period & 0x00FF);
     messageSend(START_STREAMING_SERVICE, SENSOR_DEVICE_ID,
@@ -236,8 +236,8 @@ void start_streaming_service(u_int16_t period) {
     messageSend(START_STREAMING_SERVICE, SENSOR_DEVICE_ID,
                 NO_SOURCE, TARGET_ID_ST,
                 data, 2);
-    
-    //pthread_create(&sensor_thread, NULL, read_sensors, NULL); 
+
+    //pthread_create(&sensor_thread, NULL, read_sensors, NULL);
     //printf("Thread created\n");
 }
 
@@ -268,15 +268,15 @@ void clear_streaming_service() {
 //-----------------------------------------------------------------------------------------
 //  Non-streaming sensor stuff
 
-void enable_gyro_max_notify(u_int8_t is_enabled) { 
-    u_int8_t * enabled = (u_int8_t *) malloc(sizeof(u_int8_t));
+void enable_gyro_max_notify(u_int8_t is_enabled) {
+  u_int8_t enabled[1]; // * enabled = (u_int8_t *) malloc(sizeof(u_int8_t));
     enabled[0] = is_enabled;
 
     messageSend(ENABLE_GYRO_MAX_NOTIFY, SENSOR_DEVICE_ID,
                 NO_SOURCE, TARGET_ID_ST,
-                enabled, 1); 
+                enabled, 1);
 
-    gyro_flags = -1;   
+    gyro_flags = -1;
 }
 
 void reset_locator_x_and_y() {
@@ -286,40 +286,40 @@ void reset_locator_x_and_y() {
 }
 
 void set_locator_flags(u_int8_t flags) {
-    u_int8_t * flag_buffer = (u_int8_t *) malloc(sizeof(u_int8_t));
+  u_int8_t flag_buffer[1]; // * flag_buffer = (u_int8_t *) malloc(sizeof(u_int8_t));
     flag_buffer[0] = flags;
     messageSend(SET_LOCATOR_FLAGS, SENSOR_DEVICE_ID,
                 NO_SOURCE, TARGET_ID_ST,
                 flag_buffer, 1);
 }
 
-u_int32_t get_bot_to_bot_infrared_readings() { 
-    u_int8_t * reading = 
+u_int32_t get_bot_to_bot_infrared_readings() {
+    u_int8_t * reading =
         messageSendAndRecv(GET_BOT_TO_BOT_INFRARED_READINGS, SENSOR_DEVICE_ID,
-                              NO_SOURCE, TARGET_ID_NORDIC, 
+                              NO_SOURCE, TARGET_ID_NORDIC,
                               NULL, 0, 4);
 
     u_int32_t integer = reading[0] << 24 | reading[1] << 16 | reading[2] << 8 | reading[3];
     return integer;
 }
 
-u_int16_t * get_rgbc_sensor_values() { 
-    u_int8_t * data = 
+u_int16_t * get_rgbc_sensor_values() {
+    u_int8_t * data =
         messageSendAndRecv(GET_BOT_TO_BOT_INFRARED_READINGS, SENSOR_DEVICE_ID,
-                              NO_SOURCE, TARGET_ID_NORDIC, 
+                              NO_SOURCE, TARGET_ID_NORDIC,
                               NULL, 0, 8);
 
-    u_int16_t * values = (u_int16_t *) malloc(sizeof(u_int16_t)*4);
+    u_int16_t values[4]; // * values = (u_int16_t *) malloc(sizeof(u_int16_t)*4);
     values[0] = data[0] << 8 | data[1];
     values[1] = data[2] << 8 | data[3];
     values[2] = data[4] << 8 | data[5];
     values[3] = data[6] << 8 | data[7];
-    
+
     return values;
 }
 
 void start_robot_to_robot_infrared_broadcasting(u_int8_t far_code, u_int8_t near_code) {
-    u_int8_t * code_buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*2);
+  u_int8_t code_buffer[2]; // * code_buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*2);
     code_buffer[0] = far_code;
     code_buffer[1] = near_code;
     messageSend(START_ROBOT_TO_ROBOT_INFRARED_BROADCASTING, SENSOR_DEVICE_ID,
@@ -334,7 +334,7 @@ void stop_robot_to_robot_infrared_broadcasting() {
 }
 
 void start_robot_to_robot_infrared_following(u_int8_t far_code, u_int8_t near_code) {
-    u_int8_t * code_buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*2);
+  u_int8_t code_buffer[2]; // * code_buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*2);
     code_buffer[0] = far_code;
     code_buffer[1] = near_code;
     messageSend(START_ROBOT_TO_ROBOT_INFRARED_FOLLOWING,SENSOR_DEVICE_ID,
@@ -349,7 +349,7 @@ void stop_robot_to_robot_infrared_following() {
 }
 
 void start_robot_to_robot_infrared_evading(u_int8_t far_code, u_int8_t near_code) {
-    u_int8_t * code_buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*2);
+  u_int8_t code_buffer[2]; // * code_buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*2);
     code_buffer[0] = far_code;
     code_buffer[1] = near_code;
     messageSend(START_ROBOT_TO_ROBOT_INFRARED_EVADING,SENSOR_DEVICE_ID,
@@ -367,15 +367,15 @@ float * get_motor_temperature(u_int8_t motor_indexes) {
      union {
         u_int32_t intvalue;
         float floatvalue;
-    } cvfloat; 
-    u_int8_t * index_buffer = (u_int8_t *) malloc(sizeof(u_int8_t));
+    } cvfloat;
+     u_int8_t index_buffer[1]; // * index_buffer = (u_int8_t *) malloc(sizeof(u_int8_t));
     index_buffer[0] = motor_indexes;
-    u_int8_t * data = 
+    u_int8_t * data =
         messageSendAndRecv(GET_MOTOR_TEMPERATURE, SENSOR_DEVICE_ID,
                            NO_SOURCE, TARGET_ID_NORDIC,
                            index_buffer, 1, 8);
-                           
-    float * fdata = (float *) malloc(sizeof(float)*2);
+
+    float fdata[2]; // * fdata = (float *) malloc(sizeof(float)*2);
     u_int32_t integer = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
     cvfloat.intvalue = integer;
     fdata[0] = cvfloat.floatvalue;
@@ -387,7 +387,7 @@ float * get_motor_temperature(u_int8_t motor_indexes) {
 }
 
 void enable_color_detection_notify(u_int8_t is_enabled, u_int16_t interval, u_int8_t minimum_confidence_threshold) {
-    u_int8_t * buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*4);
+  u_int8_t buffer[4]; // * buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*4);
     buffer[0] = is_enabled;
     buffer[1] = interval >> 8 & 0xFF;
     buffer[2] = interval & 0xFF;
@@ -406,26 +406,26 @@ void get_current_detected_color_reading() {
                 NULL, 0);
 }
 
-void enable_color_detection(u_int8_t is_enabled) { 
-    u_int8_t * enabled = (u_int8_t *) malloc(sizeof(u_int8_t));
+void enable_color_detection(u_int8_t is_enabled) {
+  u_int8_t enabled[1]; // * enabled = (u_int8_t *) malloc(sizeof(u_int8_t));
     enabled[0] = is_enabled;
 
     messageSend(ENABLE_COLOR_DETECTION, SENSOR_DEVICE_ID,
                 NO_SOURCE, TARGET_ID_NORDIC,
-                enabled, 1);    
+                enabled, 1);
 }
 
-void enable_robot_infrared_message_notify(u_int8_t is_enabled) { 
-    u_int8_t * enabled = (u_int8_t *) malloc(sizeof(u_int8_t));
+void enable_robot_infrared_message_notify(u_int8_t is_enabled) {
+  u_int8_t enabled[1]; // * enabled = (u_int8_t *) malloc(sizeof(u_int8_t));
     enabled[0] = is_enabled;
 
     messageSend(ENABLE_ROBOT_INFRARED_MESSAGE_NOTIFY, SENSOR_DEVICE_ID,
                 NO_SOURCE, TARGET_ID_NORDIC,
-                enabled, 1);    
+                enabled, 1);
 }
 
 void send_infrared_message(u_int8_t infrared_code, u_int8_t front_strength, u_int8_t left_strength, u_int8_t right_strength, u_int8_t rear_strength) {
-    u_int8_t * buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*5);
+  u_int8_t buffer[5]; // * buffer = (u_int8_t *) malloc(sizeof(u_int8_t)*5);
     buffer[0] = infrared_code;
     buffer[1] = front_strength;
     buffer[2] = left_strength;
@@ -441,13 +441,13 @@ void get_motor_thermal_protection_status() {
     union {
         u_int32_t intvalue;
         float floatvalue;
-    } cvfloat; 
+    } cvfloat;
 
-    u_int8_t * data = 
+    u_int8_t * data =
         messageSendAndRecv(GET_MOTOR_THERMAL_PROTECTION_STATUS, SENSOR_DEVICE_ID,
                            NO_SOURCE, TARGET_ID_NORDIC,
                            NULL, 0, 10);
-                           
+
     u_int32_t integer = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
     cvfloat.intvalue = integer;
     left_motor_temperature = cvfloat.floatvalue;
@@ -463,13 +463,13 @@ float get_right_motor_status() { return right_motor_status; }
 float get_left_motor_temperature() { return left_motor_temperature; }
 float get_left_motor_status() { return left_motor_status; }
 
-void enable_motor_thermal_protection_status_notify(u_int8_t is_enabled) { 
-    u_int8_t * enabled = (u_int8_t *) malloc(sizeof(u_int8_t));
+void enable_motor_thermal_protection_status_notify(u_int8_t is_enabled) {
+  u_int8_t enabled[1]; // * enabled = (u_int8_t *) malloc(sizeof(u_int8_t));
     enabled[0] = is_enabled;
 
     messageSend(ENABLE_MOTOR_THERMAL_PROTECTION_STATUS_NOTIFY, SENSOR_DEVICE_ID,
                 NO_SOURCE, TARGET_ID_NORDIC,
-                enabled, 1);    
+                enabled, 1);
 }
 
 void set_gyro_flags(u_int8_t flags) {
@@ -492,9 +492,9 @@ void set_color_data(u_int8_t *data) {
     confidence = data[3];
     cindex = data[4];
 }
- 
+
 int get_color_detected() {
-    if (color_data == NULL) 
+    if (color_data == NULL)
         return -1;
     else {
         return (color_data[0] << 16 & color_data[1] << 8 & color_data[2]);
