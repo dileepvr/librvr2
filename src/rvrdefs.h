@@ -1,7 +1,7 @@
 #ifndef __RVRDEFS_H
 #define __RVRDEFS_H 1
 
-#include <sys/types.h>
+// #include <sys/types.h>
 
 union flag {
     u_int8_t allbits;
