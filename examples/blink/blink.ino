@@ -1,16 +1,16 @@
 #include "io.h"
 #include "power.h"
 
-int main(char **argv) {
+void setup() {
     byte off[32];
     byte red[32];
     byte green[32];
 
     init_port();
-    set_logging_level(VERBOSE);
+    // Serial.begin(115200);
 
     wake();
-    sleep(2);
+    delay(2000);
 
     for (int i=0; i<32; i++) {
         off[i] = 0x00;
@@ -18,19 +18,22 @@ int main(char **argv) {
         green[i] = 0x00;
     }
     set_all_leds(ALL_LIGHTS, off);
-    sleep(1);
+    delay(1000);
     for (int i=0; i<32; i+=3) red[i] = 0xFF;
     for (int i=1; i<32; i+=3) green[i] = 0xFF;
-    
+
     for (int i=0; i<10; i++) {
         set_all_leds(LEFT_BRAKELIGHT, red);
-        sleep(1);
+        delay(1000);
         set_all_leds(RIGHT_BRAKELIGHT, green);
-        sleep(1);
+        delay(1000);
         set_all_leds(LEFT_BRAKELIGHT, off);
-        sleep(1);
+        delay(1000);
         set_all_leds(RIGHT_BRAKELIGHT, off);
-        sleep(1);
+        delay(1000);
     }
 
+}
+
+void loop() {
 }

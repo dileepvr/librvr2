@@ -2,16 +2,19 @@
 #include "power.h"
 #include "drive.h"
 
-int main(char **argv) {
+void setup() {
     init_port();
-    set_logging_level(VERBOSE);
 
     wake();
     reset_yaw();
 
     drive_raw_motors(RAW_MOTOR_MODE_FORWARD, 128, RAW_MOTOR_MODE_FORWARD, 128);
 
-    sleep(2);
+    delay(2000);
 
     drive_raw_motors(RAW_MOTOR_MODE_FORWARD, 0, RAW_MOTOR_MODE_FORWARD, 0);
+    fallasleep();
+}
+
+void loop() {
 }

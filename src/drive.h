@@ -20,15 +20,15 @@
 #define RIGHT_MOTOR 0x01
 
 union drive_flags {
-    u_int8_t allflags;
+    uint8_t allflags;
     struct flags {
-        u_int8_t drive_reverse:1;
-        u_int8_t boost:1;
-        u_int8_t drive_fast:1;
-        u_int8_t left_direction:1;
-        u_int8_t right_direction:1;
-        u_int8_t enable_drift:1;
-        u_int8_t unused:2;
+        uint8_t drive_reverse:1;
+        uint8_t boost:1;
+        uint8_t drive_fast:1;
+        uint8_t left_direction:1;
+        uint8_t right_direction:1;
+        uint8_t enable_drift:1;
+        uint8_t unused:2;
     } flag_bits;
 };
 
@@ -45,10 +45,10 @@ void reset_yaw();
 void drive_with_heading(byte speed, int heading, byte flags);
 
 void enable_motor_stall_notify(int isEnabled);
-u_int8_t * motor_stall_notify();
+uint8_t * motor_stall_notify();
 void enable_motor_fault_notify(int isEnabled);
 int get_motor_fault_state();
-void set_motor_stall_notify_data(u_int8_t *data);
-u_int8_t get_motor_index();
+void set_motor_stall_notify_data(uint8_t *data);
+uint8_t get_motor_index();
 int get_is_triggered();
-void set_motor_fault_state(u_int8_t *data);
+void set_motor_fault_state(uint8_t *data);

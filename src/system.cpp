@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include "system.h"
 
-u_int16_t * get_main_application_version() {
-  u_int16_t version[3]; // * version = (u_int16_t *)malloc(sizeof(u_int16_t)*3);
+uint16_t * get_main_application_version() {
+  uint16_t version[3]; // * version = (uint16_t *)malloc(sizeof(uint16_t)*3);
 
-    u_int8_t * response =
+    uint8_t * response =
         messageSendAndRecv(GET_MAIN_APPLICATION_VERSION_COMMAND, SYSTEM_INFO_DEVICE_ID,
                                   NO_SOURCE, TARGET_ID_NORDIC,
                                   NULL, 0, 6);
@@ -18,10 +18,10 @@ u_int16_t * get_main_application_version() {
 
 }
 
-u_int16_t * get_bootloader_version() {
-  u_int16_t version[3]; // * version = (u_int16_t *)malloc(sizeof(u_int16_t)*3);
+uint16_t * get_bootloader_version() {
+  uint16_t version[3]; // * version = (uint16_t *)malloc(sizeof(uint16_t)*3);
 
-    u_int8_t * response =
+    uint8_t * response =
         messageSendAndRecv(GET_BOOTLOADER_VERSION_COMMAND, SYSTEM_INFO_DEVICE_ID,
                                   NO_SOURCE, TARGET_ID_NORDIC,
                                   NULL, 0, 6);
@@ -33,9 +33,9 @@ u_int16_t * get_bootloader_version() {
     return version;
 }
 
-char * get_mac_address() {
-    char * response;
-    char address[13]; // * address = (char *)malloc(sizeof(char)*13);
+uint8_t * get_mac_address() {
+    uint8_t * response;
+    uint8_t address[13]; // * address = (char *)malloc(sizeof(char)*13);
 
     response = messageSendAndRecv(GET_MAC_ADDRESS_COMMAND, SYSTEM_INFO_DEVICE_ID,
                                   NO_SOURCE, TARGET_ID_NORDIC,
@@ -45,8 +45,8 @@ char * get_mac_address() {
     return address;
 }
 
-u_int8_t get_board_revision() {
-    u_int8_t * response =
+uint8_t get_board_revision() {
+    uint8_t * response =
         messageSendAndRecv(GET_BOARD_REVISION_COMMAND, SYSTEM_INFO_DEVICE_ID,
                                   NO_SOURCE, TARGET_ID_NORDIC,
                                   NULL, 0, 1);
@@ -54,10 +54,10 @@ u_int8_t get_board_revision() {
 
 }
 
-u_int16_t get_stats_id() {
-    u_int16_t stats_id;
+uint16_t get_stats_id() {
+    uint16_t stats_id;
 
-    u_int8_t * response =
+    uint8_t * response =
         messageSendAndRecv(GET_STATS_ID_COMMAND, SYSTEM_INFO_DEVICE_ID,
                                   NO_SOURCE, TARGET_ID_NORDIC,
                                   NULL, 0, 2);
@@ -65,8 +65,8 @@ u_int16_t get_stats_id() {
     return stats_id;
 }
 
-char * get_processor_name() {
-    char * response;
+uint8_t * get_processor_name() {
+    uint8_t * response;
 
     response = messageSendAndRecv(GET_PROCESSOR_NAME_COMMAND, SYSTEM_INFO_DEVICE_ID,
                                   NO_SOURCE, TARGET_ID_NORDIC,
@@ -74,8 +74,8 @@ char * get_processor_name() {
     return response;
 }
 
-char * get_sku() {
-    char * response;
+uint8_t * get_sku() {
+    uint8_t * response;
 
     response = messageSendAndRecv(GET_SKU_COMMAND, SYSTEM_INFO_DEVICE_ID,
                                   NO_SOURCE, TARGET_ID_NORDIC,
@@ -84,8 +84,8 @@ char * get_sku() {
     return response;
 }
 
-u_int64_t get_core_up_time_in_milliseconds() {
-    char * response;
+uint64_t get_core_up_time_in_milliseconds() {
+    uint8_t * response;
 
     response = messageSendAndRecv(GET_CORE_UP_TIME_IN_MILLISECONDS_COMMAND, SYSTEM_INFO_DEVICE_ID,
                                   NO_SOURCE, TARGET_ID_NORDIC,

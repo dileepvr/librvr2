@@ -4,7 +4,7 @@
 // #include <sys/types.h>
 
 union flag {
-    u_int8_t allbits;
+    uint8_t allbits;
     struct bits {
         unsigned int is_response:1;
         unsigned int response_requested:1;
@@ -18,7 +18,7 @@ union flag {
 };
 
 union locationID {
-    u_int8_t wholeID;
+    uint8_t wholeID;
     struct {
         unsigned int port:4;
         unsigned int node:4;
@@ -29,10 +29,10 @@ struct header {
     union flag flags;
     union locationID targetID;     /* optional, depends on flags */
     union locationID sourceID;     /* optional, depends on flags */
-    u_int8_t deviceID;     /* command group ... see defines below */
-    u_int8_t commandID;
-    u_int8_t sequence_num;
-    u_int8_t error_code;
+    uint8_t deviceID;     /* command group ... see defines below */
+    uint8_t commandID;
+    uint8_t sequence_num;
+    uint8_t error_code;
 };
 
 #define MESSAGE_START 0x8D
@@ -40,7 +40,7 @@ struct header {
 
 struct message {
     struct header * msghdr;
-    u_int8_t * payload;
+    uint8_t * payload;
     int loadlength;
 };
 
@@ -76,6 +76,6 @@ struct message {
 #define VERBOSE      2
 #define VERYVERBOSE  3
 
-#define byte u_int8_t
+#define byte uint8_t
 
 #endif

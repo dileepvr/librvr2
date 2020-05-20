@@ -3,4 +3,4 @@
 
 #define GET_BLUETOOTH_ADVERT                 0x05
 
-char * get_bluetooth_advertising_name();
+uint8_t * get_bluetooth_advertising_name();

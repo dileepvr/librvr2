@@ -9,19 +9,17 @@
 #define ESC_SOP  0x05
 #define ESC_EOP  0x50
 
-int logging_level;
-
 void init_port();
 void close_port();
 void set_logging_level(int level);
 
-struct message * read_message(int fd);
+struct message * read_message();
 int data_waiting();
-void messageSend(u_int8_t cid, u_int8_t did,
-                 u_int8_t source, u_int8_t target,
-                 u_int8_t * payload, u_int8_t payload_length);
-u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
-                              u_int8_t source, u_int8_t target,
-                              u_int8_t * payload, u_int8_t payload_length, u_int8_t recv_length);
-u_int8_t * messageRecv();
+void messageSend(uint8_t cid, uint8_t did,
+                 uint8_t source, uint8_t target,
+                 uint8_t * payload, uint8_t payload_length);
+uint8_t * messageSendAndRecv(uint8_t cid, uint8_t did,
+                              uint8_t source, uint8_t target,
+                              uint8_t * payload, uint8_t payload_length, uint8_t recv_length);
+uint8_t * messageRecv();
 char * errmsg(int error_code);

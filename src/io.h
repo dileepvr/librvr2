@@ -76,10 +76,10 @@
 #define SPECDRUMS_COLOR_PALETTE_INDEX_DEFAULT   0x00
 #define SPECDRUMS_COLOR_PALETTE_INDEX_MIDI      0x01
 
-void set_all_leds(u_int32_t led_group, u_int8_t brightness[32]);
-u_int8_t *get_active_color_palette();
-void set_active_color_palette(u_int8_t *rgb_index_bytes);
-u_int8_t *get_color_identification_report(u_int8_t red, u_int8_t green, u_int8_t blue, u_int8_t confidence_threshold);
-void load_color_palette(u_int8_t palette_index);
-void save_color_palette(u_int8_t palette_index);
+void set_all_leds(uint32_t led_group, uint8_t brightness[32]);
+uint8_t *get_active_color_palette();
+void set_active_color_palette(uint8_t *rgb_index_bytes);
+uint8_t *get_color_identification_report(uint8_t red, uint8_t green, uint8_t blue, uint8_t confidence_threshold);
+void load_color_palette(uint8_t palette_index);
+void save_color_palette(uint8_t palette_index);
 void release_led_requests();

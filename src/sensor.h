@@ -121,13 +121,13 @@ void test_normalize();
 
 float get_ambient_light_sensor_value();
 
-float * get_motor_temperature(u_int8_t motor_index);
+float * get_motor_temperature(uint8_t motor_index);
 
 void reset_sensor_list();
-void add_sensor(u_int16_t sensor);
+void add_sensor(uint16_t sensor);
 void configure_streaming_service();
-void start_streaming_service(u_int16_t period);
-void set_sensor_data(u_int8_t *data);
+void start_streaming_service(uint16_t period);
+void set_sensor_data(uint8_t *data);
 void stop_streaming_service();
 void clear_streaming_service();
 
@@ -156,33 +156,33 @@ float get_velocity_Y();
 float get_speed();
 float get_light();
 
-u_int8_t get_gyro_flags();
-void set_gyro_flags(u_int8_t flags);
+uint8_t get_gyro_flags();
+void set_gyro_flags(uint8_t flags);
 int get_color_detected();
-void set_color_data(u_int8_t *data);
+void set_color_data(uint8_t *data);
 
-void enable_gyro_max_notify(u_int8_t is_enabled);
+void enable_gyro_max_notify(uint8_t is_enabled);
 void reset_locator_x_and_y();
-void set_locator_flags(u_int8_t flags);
-u_int32_t get_bot_to_bot_infrared_readings(); 
-u_int16_t * get_rgbc_sensor_values();
-void start_robot_to_robot_infrared_broadcasting(u_int8_t far_code, u_int8_t near_code);
+void set_locator_flags(uint8_t flags);
+uint32_t get_bot_to_bot_infrared_readings(); 
+uint16_t * get_rgbc_sensor_values();
+void start_robot_to_robot_infrared_broadcasting(uint8_t far_code, uint8_t near_code);
 void stop_robot_to_robot_infrared_broadcasting();
-void start_robot_to_robot_infrared_following(u_int8_t far_code, u_int8_t near_code);
+void start_robot_to_robot_infrared_following(uint8_t far_code, uint8_t near_code);
 void stop_robot_to_robot_infrared_following();
-void start_robot_to_robot_infrared_evading(u_int8_t far_code, u_int8_t near_code);
+void start_robot_to_robot_infrared_evading(uint8_t far_code, uint8_t near_code);
 void stop_robot_to_robot_infrared_evading();
-float * get_motor_temperature(u_int8_t motor_indexes);
-void enable_color_detection_notify(u_int8_t is_enabled, u_int16_t interval, u_int8_t minimum_confidence_threshold);
+float * get_motor_temperature(uint8_t motor_indexes);
+void enable_color_detection_notify(uint8_t is_enabled, uint16_t interval, uint8_t minimum_confidence_threshold);
 void get_current_detected_color_reading();
-void enable_color_detection(u_int8_t is_enabled);
-void enable_robot_infrared_message_notify(u_int8_t is_enabled);
-void send_infrared_message(u_int8_t infrared_code, u_int8_t front_strength, u_int8_t left_strength, u_int8_t right_strength, u_int8_t rear_strength);
+void enable_color_detection(uint8_t is_enabled);
+void enable_robot_infrared_message_notify(uint8_t is_enabled);
+void send_infrared_message(uint8_t infrared_code, uint8_t front_strength, uint8_t left_strength, uint8_t right_strength, uint8_t rear_strength);
 void get_motor_thermal_protection_status();
 float get_right_motor_temperature();
 float get_right_motor_status();
 float get_left_motor_temperature();
 float get_left_motor_status();
-void enable_motor_thermal_protection_status_notify(u_int8_t is_enabled);
+void enable_motor_thermal_protection_status_notify(uint8_t is_enabled);
 
  

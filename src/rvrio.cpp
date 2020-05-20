@@ -9,8 +9,6 @@ int data_pipe[2];
 int sequence_number;
 int reading;
 
-int port_configured = 0;
-
 int infrared_code;
 
 #define TRUE 1
@@ -23,7 +21,7 @@ void write_message(struct message * data);
 void read_rover() {  // Constantly call this
 
   struct message *msg;
-  u_int8_t *sensor_data, *temperature_data;
+  uint8_t *sensor_data, *temperature_data;
 
   recv_flag = false;
   reading = 1;
@@ -67,9 +65,8 @@ void read_rover() {  // Constantly call this
 
 void init_port() {
 
-  Serial.begin(115200);
+  if (!Serial) { Serial.begin(115200); }
   sequence_number = 1;
-  port_configured = 1;
 }
 
 void close_port() {
@@ -77,8 +74,8 @@ void close_port() {
   Serial.end();
 }
 
-u_int8_t readbyte() {
-    u_int8_t bite;
+uint8_t readbyte() {
+    uint8_t bite;
 
     bite = Serial.read();
     if (bite == ESCAPE) {
@@ -88,8 +85,8 @@ u_int8_t readbyte() {
     return bite;
 }
 
-void writebyte(u_int8_t bite) {
-    u_int8_t first;
+void writebyte(uint8_t bite) {
+    uint8_t first;
     if (bite == MESSAGE_START) {
         first = ESCAPE;
         Serial.write(first);
@@ -104,12 +101,15 @@ void writebyte(u_int8_t bite) {
 
 struct message * read_message() {
 
-    u_int8_t bite;
+    uint8_t bite;
     int checksum = 0;
-    u_int8_t buffer[256];
+    uint8_t buffer[256];
 
-    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
-    struct header headr; // * headr = (struct header *) malloc(sizeof (struct header));
+    struct message msgb; // * msg = (struct message*) malloc(sizeof(struct message));
+    struct header headrb; // * headr = (struct header *) malloc(sizeof (struct header));
+    struct message *msg;
+    struct header *headr;
+    msg = &msgb; headr = &headrb;
     msg->msghdr = headr;
 
     /* Start the message */
@@ -157,7 +157,7 @@ struct message * read_message() {
     }
 
     /* And now the payload */
-    u_int8_t recv_length = 0;
+    uint8_t recv_length = 0;
     bite = readbyte();
     while (bite != MESSAGE_END) {
         buffer[recv_length] = bite;
@@ -167,10 +167,10 @@ struct message * read_message() {
     }
     recv_length--;   // account for the received checksum
     msg->loadlength = recv_length;
-    u_int8_t pl[recv_length]; // * pl = (u_int8_t *) malloc(sizeof(u_int8_t)*recv_length);
+    uint8_t pl[recv_length]; // * pl = (uint8_t *) malloc(sizeof(uint8_t)*recv_length);
     msg->payload = pl;
     for (int i=0; i<recv_length; i++) {
-        *(pl++) = buffer[i];
+        pl[i] = buffer[i];
     }
     /* Checksum */
     checksum = checksum & 0xFF ^ 0xFF;
@@ -182,7 +182,7 @@ struct message * read_message() {
 
 void write_message(struct message * msg) {
 
-    u_int8_t bite;
+    uint8_t bite;
     int checksum = 0;
 
     /* Start the message */
@@ -221,7 +221,7 @@ void write_message(struct message * msg) {
 
     /* And now the payload */
     if (msg->loadlength > 0) {
-        u_int8_t * pl = msg->payload;
+        uint8_t * pl = msg->payload;
         for (int i=0; i < msg->loadlength; i++) {
             bite = *pl;
             writebyte(bite);
@@ -236,20 +236,18 @@ void write_message(struct message * msg) {
 
     /* Message ends */
     bite = MESSAGE_END;
-    write(bite);
+    Serial.write(bite);
 }
 
-void messageSend(u_int8_t cid, u_int8_t did,
-                 u_int8_t source, u_int8_t target,
-                 u_int8_t * payload, u_int8_t payload_length) {
+void messageSend(uint8_t cid, uint8_t did,
+                 uint8_t source, uint8_t target,
+                 uint8_t * payload, uint8_t payload_length) {
 
-
-    if (! port_configured) {
-        return;
-    }
 
     /* Build the header */
-    struct header headr; // * headr = (struct header *) malloc(sizeof (struct header));
+    struct header headrb; // * headr = (struct header *) malloc(sizeof (struct header));
+    struct header *headr;
+    headr = &headrb;
 
     /* Flags */
     headr->flags.allbits = 0;
@@ -265,7 +263,9 @@ void messageSend(u_int8_t cid, u_int8_t did,
     headr->sequence_num = sequence_number++;
 
     /* Build the message */
-    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
+    struct message msgb; // * msg = (struct message*) malloc(sizeof(struct message));
+    struct message *msg;
+    msg = &msgb;
 
     msg->msghdr = headr;
     msg->payload = payload;
@@ -275,17 +275,15 @@ void messageSend(u_int8_t cid, u_int8_t did,
     write_message(msg);
 }
 
-u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
-                              u_int8_t source, u_int8_t target,
-                              u_int8_t * payload, u_int8_t payload_length, u_int8_t recv_length) {
+uint8_t * messageSendAndRecv(uint8_t cid, uint8_t did,
+                              uint8_t source, uint8_t target,
+                              uint8_t * payload, uint8_t payload_length, uint8_t recv_length) {
 
-
-    if (! port_configured) {
-        return NULL;
-    }
 
      /* Build the header */
-    struct header headr; // * headr = (struct header *) malloc(sizeof (struct header));
+    struct header headrb; // * headr = (struct header *) malloc(sizeof (struct header));
+    struct header *headr;
+    headr = &headrb;
 
     /* Flags */
     headr->flags.allbits = 0;
@@ -302,7 +300,9 @@ u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
     headr->sequence_num = sequence_number++;
 
     /* Build the message */
-    struct message msg; // * msg = (struct message*) malloc(sizeof(struct message));
+    struct message msgb; // * msg = (struct message*) malloc(sizeof(struct message));
+    struct message *msg;
+    msg = &msgb;
 
     msg->msghdr = headr;
     msg->payload = payload;
@@ -318,11 +318,7 @@ u_int8_t * messageSendAndRecv(u_int8_t cid, u_int8_t did,
     return response->payload;
 }
 
-u_int8_t * messageRecv() {
-
-    if (! port_configured) {
-        return NULL;
-    }
+uint8_t * messageRecv() {
 
     struct message * response;
     read_rover();

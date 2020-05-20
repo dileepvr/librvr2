@@ -27,14 +27,14 @@
 
 void wake();
 void fallasleep();
-u_int8_t get_battery_percentage();
-u_int8_t get_battery_voltage_state();
+uint8_t get_battery_percentage();
+uint8_t get_battery_voltage_state();
 float get_battery_voltage_in_volts(byte reading_type);
 float *get_battery_voltage_state_thresholds();
 float get_current_sense_amplifier_current(byte amplifier_id);
-void set_will_sleep(u_int8_t *data);
+void set_will_sleep(uint8_t *data);
 int get_will_sleep();
-void set_did_sleep(u_int8_t *data);
+void set_did_sleep(uint8_t *data);
 int get_did_sleep();
-void set_battery_voltage_state_change(u_int8_t *data);
+void set_battery_voltage_state_change(uint8_t *data);
 int get_battery_voltage_state_change();
